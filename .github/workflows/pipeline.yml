@@ -1,0 +1,100 @@
+name: Manage Azure App Services
+ 
+on:
+  workflow_dispatch:
+    inputs:
+      dev:
+        description: "Run for DEV"
+        type: boolean
+        default: false
+      uat:
+        description: "Run for UAT"
+        type: boolean
+        default: false
+      stg:
+        description: "Run for STG"
+        type: boolean
+        default: false
+      qa:
+        description: "Run for QA"
+        type: boolean
+        default: false
+      action:
+        description: "Select Action"
+        type: choice
+        options:
+          - start
+          - stop
+        required: true
+ 
+permissions:
+  id-token: write
+  contents: read
+ 
+jobs:
+  manage:
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Azure Login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+ 
+      - name: Process DEV
+        if: ${{ inputs.dev == true }}
+        run: |
+          RESOURCE_GROUP="rg-dev"
+          APPS="app-dev-1 app-dev-2"
+ 
+          for app in $APPS; do
+            if [ "${{ inputs.action }}" = "start" ]; then
+              az webapp start --name $app --resource-group $RESOURCE_GROUP
+            else
+              az webapp stop --name $app --resource-group $RESOURCE_GROUP
+            fi
+          done
+ 
+      - name: Process UAT
+        if: ${{ inputs.uat == true }}
+        run: |
+          RESOURCE_GROUP="rg-uat"
+          APPS="app-uat-1"
+ 
+          for app in $APPS; do
+            if [ "${{ inputs.action }}" = "start" ]; then
+              az webapp start --name $app --resource-group $RESOURCE_GROUP
+            else
+              az webapp stop --name $app --resource-group $RESOURCE_GROUP
+            fi
+          done
+ 
+      - name: Process STG
+        if: ${{ inputs.stg == true }}
+        run: |
+          RESOURCE_GROUP="rg-stg"
+          APPS="app-stg-1"
+ 
+          for app in $APPS; do
+            if [ "${{ inputs.action }}" = "start" ]; then
+              az webapp start --name $app --resource-group $RESOURCE_GROUP
+            else
+              az webapp stop --name $app --resource-group $RESOURCE_GROUP
+            fi
+          done
+ 
+      - name: Process QA
+        if: ${{ inputs.qa == true }}
+        run: |
+          RESOURCE_GROUP="rg-qa"
+          APPS="app-qa-1"
+ 
+          for app in $APPS; do
+            if [ "${{ inputs.action }}" = "start" ]; then
+              az webapp start --name $app --resource-group $RESOURCE_GROUP
+            else
+              az webapp stop --name $app --resource-group $RESOURCE_GROUP
+            fi
+          done
